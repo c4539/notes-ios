@@ -68,17 +68,6 @@ class EditorViewController: UIViewController {
     private var observers = [NSObjectProtocol]()
     private let throttler = Throttler(minimumDelay: 0.5)
 
-    var screenShot: UIImage {
-        var capturedScreen: UIImage?
-        UIGraphicsBeginImageContextWithOptions(self.noteView.frame.size, false, 0)
-        if let context = UIGraphicsGetCurrentContext() {
-            self.noteView.layer.render(in: context)
-            capturedScreen = UIGraphicsGetImageFromCurrentImageContext()
-        }
-        UIGraphicsEndImageContext()
-        return capturedScreen ?? UIImage()
-    }
-
     deinit {
         for observer in self.observers {
             NotificationCenter.default.removeObserver(observer)
@@ -278,24 +267,21 @@ class EditorViewController: UIViewController {
         return controller
     }()
     
+    /// Deletes the note and closes the editor.
     func deleteNote(_ sender: Any?) {
-        let imageView = UIImageView(frame: self.noteView.frame)
-        imageView.image = self.screenShot
-        self.noteView.addSubview(imageView)
-        UIView.animate(withDuration: 0.3,
-                       delay: 0.0,
-                       options: [.curveEaseInOut, .allowUserInteraction],
-                       animations: { [weak self] in
-            let targetFrame = CGRect(x: self?.noteView.frame.size.width ?? 100 / 2, y: self?.noteView.frame.size.height ?? 100 / 2, width: 0, height: 0)
-            imageView.frame = targetFrame
-            imageView.alpha = 0.0
-        }) { (_) in
-            imageView.removeFromSuperview()
-            self.view.layer.setNeedsDisplay()
-            self.view.layer.displayIfNeeded()
+        guard let note, !note.readOnly else { return }
+
+        // Detach the note first, so closing the editor does not save it again.
+        self.note = nil
+        noteView.endEditing(true)
+
+        Task {
+            await NoteSessionManager.shared.delete(note: note)
         }
+
+        dismiss(animated: true)
     }
-    
+
     private func confirmDelete() {
         if let popover = deleteAlertController.popoverPresentationController {
             popover.barButtonItem = moreButton
