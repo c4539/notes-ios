@@ -29,8 +29,6 @@ struct NotesView: View {
             }
             .toolbarTitleDisplayMode(.inline)
             .navigationTitle(String(localized: "Notes", comment: ""))
-            .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarBackground(.visible, for: .tabBar)
     }
 
     private var sortMenu: some View {

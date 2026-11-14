@@ -59,18 +59,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        if #available(iOS 15, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            UINavigationBar.appearance().standardAppearance = appearance
-            UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        }
-
-        UINavigationBar.appearance().barTintColor = .ph_popoverButtonColor
-        UINavigationBar.appearance().shadowImage = UIImage()
+        // Bars keep the system background, so they adopt Liquid Glass.
         UINavigationBar.appearance().tintColor = .ph_iconColor
-
-        UIToolbar.appearance().barTintColor = .ph_popoverButtonColor
         UIToolbar.appearance().tintColor = .ph_iconColor
 
         UIBarButtonItem.appearance().tintColor = .ph_textColor

@@ -92,7 +92,8 @@ class EditorViewController: UIViewController {
         noteView.delegate = self
         let bottomConstraint = noteView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor)
         bottomLayoutConstraint = bottomConstraint
-        self.view.backgroundColor = .ph_cellBackgroundColor
+        // Matches the text view, as the area behind the transparent navigation bar would stand out otherwise.
+        self.view.backgroundColor = .systemBackground
         NSLayoutConstraint.activate([
             noteView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
             noteView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
