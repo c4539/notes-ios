@@ -48,10 +48,13 @@ struct NotesListView: View {
         List {
             ForEach(model.sections) { section in
                 if section.hasHeader {
-                    Section(isExpanded: expansionBinding(for: section.title)) {
-                        rows(for: section)
+                    // `Section(isExpanded:)` only offers a control to collapse it in the sidebar list style.
+                    Section {
+                        if model.isExpanded(section.title) {
+                            rows(for: section)
+                        }
                     } header: {
-                        Label(section.title, systemImage: "folder")
+                        categoryHeader(for: section.title)
                     }
                 } else {
                     rows(for: section)
@@ -150,10 +153,33 @@ struct NotesListView: View {
         }
     }
 
-    private func expansionBinding(for title: String) -> Binding<Bool> {
-        Binding(
-            get: { model.isExpanded(title) },
-            set: { model.setExpanded($0, for: title) }
+    /// Header of a category which collapses or expands its notes when tapped.
+    private func categoryHeader(for title: String) -> some View {
+        let isExpanded = model.isExpanded(title)
+
+        return Button {
+            withAnimation {
+                model.setExpanded(!isExpanded, for: title)
+            }
+        } label: {
+            HStack {
+                Label(title, systemImage: "folder")
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                    .accessibilityHidden(true)
+            }
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(.isHeader)
+        .accessibilityValue(
+            isExpanded
+                ? String(localized: "Expanded", comment: "Accessibility value of a category whose notes are shown")
+                : String(localized: "Collapsed", comment: "Accessibility value of a category whose notes are hidden")
         )
     }
 
